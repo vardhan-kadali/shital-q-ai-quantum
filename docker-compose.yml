@@ -1,0 +1,52 @@
+version: '3.8'
+services:
+  frontend:
+    image: nextjs:latest
+    container_name: shital-q-frontend
+    ports:
+      - '3000:3000'
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+    networks:
+      - shital-q-net
+
+  backend:
+    image: tiangolo/uvicorn-gunicorn-fastapi:python3.8
+    container_name: shital-q-backend
+    ports:
+      - '8000:80'
+    volumes:
+      - ./app:/app
+    networks:
+      - shital-q-net
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/shital_q
+
+  db:
+    image: postgres:latest
+    container_name: shital-q-db
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=shital_q
+    networks:
+      - shital-q-net
+
+  redis:
+    image: redis:latest
+    container_name: shital-q-redis
+    ports:
+      - '6379:6379'
+    networks:
+      - shital-q-net
+
+networks:
+  shital-q-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
